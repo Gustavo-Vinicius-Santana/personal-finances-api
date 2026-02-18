@@ -55,4 +55,20 @@ public class UserAuthController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("forgot-password")
+    public ResponseEntity<Void> forgotPassword(
+            @RequestBody @Valid UserAuthForgotPasswordRequestDTO request) {
+
+        userAuth.requestPasswordReset(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("reset-password")
+    public ResponseEntity<Void> resetPassword(
+            @RequestBody @Valid UserAuthResetPasswordRequestDTO request) {
+
+        userAuth.resetPassword(request);
+        return ResponseEntity.noContent().build();
+    }
+
 }

@@ -24,6 +24,8 @@ public class SecurityConfig {
                         req -> {
                             req.requestMatchers("/user/login").permitAll();
                             req.requestMatchers("/user/register").permitAll();
+                            req.requestMatchers("/user/forgot-password").permitAll();
+                            req.requestMatchers("/user/reset-password").permitAll();
                             req.anyRequest().authenticated();
                         }
                 )
