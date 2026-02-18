@@ -1,11 +1,11 @@
 package br.com.finance_project.personal_finance_api.service;
 
-import br.com.finance_project.personal_finance_api.dto.UserAuthLoginRequestDTO;
-import br.com.finance_project.personal_finance_api.dto.UserAuthRegisterRequestDTO;
-import br.com.finance_project.personal_finance_api.dto.UserAuthResponse;
+import br.com.finance_project.personal_finance_api.dto.*;
 import br.com.finance_project.personal_finance_api.model.User;
 import br.com.finance_project.personal_finance_api.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -51,5 +51,42 @@ public class UserAuthServiceIml implements UserDetailsService, UserAuthService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email) );
+    }
+
+    @Override
+    public UserResponse getCurrentUser(User user) {
+        return new UserResponse(user);
+    }
+
+    @Transactional
+    public UserResponse updateUser(
+            User user, UserAuthUpdateRequest userUpdate
+    ) {
+
+        if (userRepository.existsByEmailIgnoreCaseAndIdNot(
+                userUpdate.email(), user.getId())
+        ) {
+
+            throw new RuntimeException("Email already in use");
+        }
+
+        user.setName(userUpdate.name());
+        user.setEmail(userUpdate.email());
+
+        User updatedUser = userRepository.save(user);
+
+        return new UserResponse(updatedUser);
+    }
+
+    @Transactional
+    public Void deleteUser(User user) {
+
+        if (!userRepository.existsById(user.getId())) {
+            throw new RuntimeException("User not found");
+        }
+
+        userRepository.deleteById(user.getId());
+
+        return null;
     }
 }

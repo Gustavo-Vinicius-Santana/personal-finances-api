@@ -1,13 +1,13 @@
 package br.com.finance_project.personal_finance_api.controller;
 
-import br.com.finance_project.personal_finance_api.dto.UserAuthLoginRequestDTO;
-import br.com.finance_project.personal_finance_api.dto.UserAuthRegisterRequestDTO;
-import br.com.finance_project.personal_finance_api.dto.UserAuthResponse;
+import br.com.finance_project.personal_finance_api.dto.*;
+import br.com.finance_project.personal_finance_api.model.User;
 import br.com.finance_project.personal_finance_api.service.UserAuthService;
 import br.com.finance_project.personal_finance_api.service.UserAuthServiceIml;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,9 +31,28 @@ public class UserAuthController {
         return ResponseEntity.ok(userAuth.registerUser(userRegister));
     }
 
-    @GetMapping("userByToken")
-    public ResponseEntity<UserAuthResponse> userByToken() {
-        return null;
+    @GetMapping("me")
+    public ResponseEntity<UserResponse> getCurrentUser(
+            @AuthenticationPrincipal User user
+    ) {
+        return ResponseEntity.ok(userAuth.getCurrentUser(user));
+    }
+
+    @PutMapping("update")
+    public ResponseEntity<UserResponse> updateUser(
+            @AuthenticationPrincipal User user,
+            @RequestBody @Valid UserAuthUpdateRequest request
+    ) {
+        return ResponseEntity.ok(userAuth.updateUser(user, request));
+    }
+
+    @DeleteMapping("delete")
+    public ResponseEntity<Void> deleteUser(
+            @AuthenticationPrincipal User user
+    ) {
+        userAuth.deleteUser(user);
+
+        return ResponseEntity.noContent().build();
     }
 
 }
