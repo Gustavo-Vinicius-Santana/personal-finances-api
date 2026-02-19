@@ -2,6 +2,7 @@ package br.com.finance_project.personal_finance_api.controller;
 
 import br.com.finance_project.personal_finance_api.dto.FinanceMovementRequestDTO;
 import br.com.finance_project.personal_finance_api.dto.FinanceMovementResponseDTO;
+import br.com.finance_project.personal_finance_api.model.MovementType;
 import br.com.finance_project.personal_finance_api.model.User;
 import br.com.finance_project.personal_finance_api.service.FinanceMovementServiceIml;
 import jakarta.validation.Valid;
@@ -22,9 +23,10 @@ public class FinanceMovementController {
 
     @GetMapping
     public ResponseEntity<List<FinanceMovementResponseDTO>> findAll(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal User user,
+            @RequestParam(required = false) MovementType type
     ) {
-        return ResponseEntity.ok(financeMovementService.findAll(user));
+        return ResponseEntity.ok(financeMovementService.findAll(user, type));
     }
 
     @GetMapping("/{id}")

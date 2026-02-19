@@ -1,6 +1,7 @@
 package br.com.finance_project.personal_finance_api.dto;
 
 import br.com.finance_project.personal_finance_api.model.FinanceMovement;
+import br.com.finance_project.personal_finance_api.model.MovementType;
 
 import java.util.Date;
 
@@ -9,7 +10,7 @@ public record FinanceMovementResponseDTO(
         String description,
         Number amount,
         Date date,
-        String type,
+        MovementType type,
         Long userId
 ) {
     public FinanceMovementResponseDTO(FinanceMovement financeMovement){

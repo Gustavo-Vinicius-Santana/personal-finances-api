@@ -30,8 +30,9 @@ public class FinanceMovement {
     @Column
     private Date date;
 
-    @Column
-    private String type;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MovementType type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

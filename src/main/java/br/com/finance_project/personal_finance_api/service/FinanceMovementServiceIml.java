@@ -3,6 +3,7 @@ package br.com.finance_project.personal_finance_api.service;
 import br.com.finance_project.personal_finance_api.dto.FinanceMovementRequestDTO;
 import br.com.finance_project.personal_finance_api.dto.FinanceMovementResponseDTO;
 import br.com.finance_project.personal_finance_api.model.FinanceMovement;
+import br.com.finance_project.personal_finance_api.model.MovementType;
 import br.com.finance_project.personal_finance_api.model.User;
 import br.com.finance_project.personal_finance_api.repository.FinanceMovementRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +16,18 @@ import java.util.List;
 public class FinanceMovementServiceIml implements FinanceMovementService {
     private final FinanceMovementRepository financeMovementRepository;
 
-    public List<FinanceMovementResponseDTO> findAll(User user) {
+    public List<FinanceMovementResponseDTO> findAll(User user, MovementType type) {
+        List<FinanceMovement> movements;
 
-        return financeMovementRepository
-                .findByUserId(user.getId())
+        if (type != null) {
+            movements = financeMovementRepository
+                    .findByUserIdAndType(user.getId(), type);
+        } else {
+            movements = financeMovementRepository
+                    .findByUserId(user.getId());
+        }
+
+        return movements
                 .stream()
                 .map(FinanceMovementResponseDTO::new)
                 .toList();
