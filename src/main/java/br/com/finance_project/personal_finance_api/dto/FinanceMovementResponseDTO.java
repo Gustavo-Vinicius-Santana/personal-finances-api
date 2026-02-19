@@ -9,7 +9,8 @@ public record FinanceMovementResponseDTO(
         String description,
         Number amount,
         Date date,
-        String type
+        String type,
+        Long userId
 ) {
     public FinanceMovementResponseDTO(FinanceMovement financeMovement){
         this(
@@ -17,7 +18,8 @@ public record FinanceMovementResponseDTO(
                 financeMovement.getDescription(),
                 financeMovement.getAmount(),
                 financeMovement.getDate(),
-                financeMovement.getType()
+                financeMovement.getType(),
+                financeMovement.getUser().getId()
         );
     }
 }

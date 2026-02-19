@@ -33,6 +33,10 @@ public class FinanceMovement {
     @Column
     private String type;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     public static FinanceMovement fromDto(FinanceMovementRequestDTO dto) {
         FinanceMovement financeMovement = new FinanceMovement();
 
