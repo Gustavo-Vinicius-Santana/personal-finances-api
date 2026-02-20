@@ -2,6 +2,8 @@ package br.com.finance_project.personal_finance_api.service;
 
 import br.com.finance_project.personal_finance_api.dto.FinanceMovementRequestDTO;
 import br.com.finance_project.personal_finance_api.dto.FinanceMovementResponseDTO;
+import br.com.finance_project.personal_finance_api.exception.BusinessException;
+import br.com.finance_project.personal_finance_api.exception.ResourceNotFoundException;
 import br.com.finance_project.personal_finance_api.model.FinanceMovement;
 import br.com.finance_project.personal_finance_api.model.MovementType;
 import br.com.finance_project.personal_finance_api.model.User;
@@ -9,14 +11,18 @@ import br.com.finance_project.personal_finance_api.repository.FinanceMovementRep
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class FinanceMovementServiceIml implements FinanceMovementService {
+
     private final FinanceMovementRepository financeMovementRepository;
 
+    @Override
     public List<FinanceMovementResponseDTO> findAll(User user, MovementType type) {
+
         List<FinanceMovement> movements;
 
         if (type != null) {
@@ -35,43 +41,85 @@ public class FinanceMovementServiceIml implements FinanceMovementService {
 
     @Override
     public FinanceMovementResponseDTO findById(Long id, User user) {
-        return financeMovementRepository
+
+        FinanceMovement movement = financeMovementRepository
                 .findByIdAndUserId(id, user.getId())
-                .map(FinanceMovementResponseDTO::new)
-                .orElseThrow(() -> new RuntimeException("Movement not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Movement not found"));
+
+        return new FinanceMovementResponseDTO(movement);
     }
 
     @Override
-    public FinanceMovementResponseDTO save(FinanceMovementRequestDTO financeMovement, User user) {
-        var movement = FinanceMovement.fromDto(financeMovement);
+    public FinanceMovementResponseDTO save(
+            FinanceMovementRequestDTO financeMovement,
+            User user
+    ) {
 
+        validateBusinessRules(financeMovement);
+
+        var movement = FinanceMovement.fromDto(financeMovement);
         movement.setUser(user);
 
-        var saveMovement = financeMovementRepository.save(movement);
+        var savedMovement = financeMovementRepository.save(movement);
 
-        return new FinanceMovementResponseDTO(saveMovement);
+        return new FinanceMovementResponseDTO(savedMovement);
     }
 
     @Override
-    public FinanceMovementResponseDTO update(Long id, FinanceMovementRequestDTO financeMovement, User user) {
-        var existingMovement = financeMovementRepository
+    public FinanceMovementResponseDTO update(
+            Long id,
+            FinanceMovementRequestDTO financeMovement,
+            User user
+    ) {
+
+        FinanceMovement existingMovement = financeMovementRepository
                 .findByIdAndUserId(id, user.getId())
-                .orElseThrow(() -> new RuntimeException("Movement not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Movement not found"));
+
+        validateBusinessRules(financeMovement);
 
         existingMovement.updateFromDto(financeMovement);
 
-        var updateMovement = financeMovementRepository.save(existingMovement);
+        var updatedMovement = financeMovementRepository.save(existingMovement);
 
-        return new FinanceMovementResponseDTO(updateMovement);
+        return new FinanceMovementResponseDTO(updatedMovement);
     }
 
     @Override
     public void deleteId(long id, User user) {
-        var movement = financeMovementRepository
+
+        FinanceMovement movement = financeMovementRepository
                 .findByIdAndUserId(id, user.getId())
                 .orElseThrow(() ->
-                        new RuntimeException("Movement not found"));
+                        new ResourceNotFoundException("Movement not found"));
 
         financeMovementRepository.delete(movement);
+    }
+
+    private void validateBusinessRules(FinanceMovementRequestDTO dto) {
+
+        if (dto.amount() == null ||
+                dto.amount().compareTo(BigDecimal.ZERO) <= 0) {
+
+            throw new BusinessException(
+                    "Movement amount must be greater than zero"
+            );
+        }
+
+        if (dto.type() == null) {
+            throw new BusinessException(
+                    "Movement type is required"
+            );
+        }
+
+        if (dto.description() == null ||
+                dto.description().isBlank()) {
+
+            throw new BusinessException(
+                    "Description is required"
+            );
+        }
     }
 }
