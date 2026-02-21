@@ -5,17 +5,15 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record UserAuthResponse(
-        Long id,
         @NotBlank String name,
-        @NotBlank @Email String email,
-        String token
+        String token,
+        String refresh
 ) {
-    public UserAuthResponse(User user, String token){
+    public UserAuthResponse(User user, String token, String refresh){
         this(
-                user.getId(),
                 user.getName(),
-                user.getEmail(),
-                token
+                token,
+                refresh
         );
     }
 }

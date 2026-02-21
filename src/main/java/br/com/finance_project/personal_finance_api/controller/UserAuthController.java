@@ -2,7 +2,6 @@ package br.com.finance_project.personal_finance_api.controller;
 
 import br.com.finance_project.personal_finance_api.dto.*;
 import br.com.finance_project.personal_finance_api.model.User;
-import br.com.finance_project.personal_finance_api.service.UserAuthService;
 import br.com.finance_project.personal_finance_api.service.UserAuthServiceIml;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +68,13 @@ public class UserAuthController {
 
         userAuth.resetPassword(request);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("refresh")
+    public ResponseEntity<UserAuthResponse> refresh(
+            @RequestBody RefreshTokenRequestDTO request
+    ) {
+        return ResponseEntity.ok(userAuth.refreshToken(request.refreshToken()));
     }
 
 }

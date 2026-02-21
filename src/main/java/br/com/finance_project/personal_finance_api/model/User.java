@@ -35,6 +35,9 @@ public class User implements UserDetails {
     @Column
     private String role;
 
+    @Column(length = 500)
+    private String refreshToken;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(()-> "ROLE_" + role);

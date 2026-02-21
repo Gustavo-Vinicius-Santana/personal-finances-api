@@ -21,22 +21,29 @@ public class JwtServiceIml implements JwtService {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
+    @Value("${jwt.refresh-expiration}")
+    private long refreshExpiration;
+
     private Algorithm getAlgorithm() {
         return Algorithm.HMAC256(secretKey);
     }
 
     @Override
     public String generateUserToken(UserDetails userDetails) {
-        return generateToken(userDetails, jwtExpiration);
+        return generateToken(userDetails, jwtExpiration, "access");
     }
 
-    @Override
-    public String generateToken(UserDetails userDetails, long expirationMillis) {
+    public String generateRefreshToken(UserDetails userDetails) {
+        return generateToken(userDetails, refreshExpiration, "refresh");
+    }
+
+    public String generateToken(UserDetails userDetails, long expirationMillis, String type) {
         Date now = new Date();
         Date expiresAt = new Date(now.getTime() + expirationMillis);
 
         return JWT.create()
                 .withSubject(userDetails.getUsername())
+                .withClaim("type", type)
                 .withIssuedAt(now)
                 .withExpiresAt(expiresAt)
                 .sign(getAlgorithm());
@@ -63,6 +70,18 @@ public class JwtServiceIml implements JwtService {
         }
         catch (JWTVerificationException e) {
             return false;
+        }
+    }
+
+    public String extractTokenType(String token) {
+        try {
+            DecodedJWT decodedJWT = JWT.require(getAlgorithm())
+                    .build()
+                    .verify(token);
+
+            return decodedJWT.getClaim("type").asString();
+        } catch (JWTVerificationException e) {
+            return null;
         }
     }
 }

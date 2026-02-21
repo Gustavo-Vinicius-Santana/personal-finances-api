@@ -44,8 +44,9 @@ public class UserAuthServiceIml implements UserDetailsService, UserAuthService {
         User saveUser = userRepository.save(user);
 
         String token = jwtService.generateUserToken(saveUser);
+        String refreshToken = jwtService.generateRefreshToken(user);
 
-        return new UserAuthResponse(saveUser, token);
+        return new UserAuthResponse(saveUser, token, refreshToken);
     }
 
     @Override
@@ -62,9 +63,13 @@ public class UserAuthServiceIml implements UserDetailsService, UserAuthService {
             );
         }
 
-        String token = jwtService.generateUserToken(user);
+        String accessToken = jwtService.generateUserToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
 
-        return new UserAuthResponse(user, token);
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+
+        return new UserAuthResponse(user, accessToken, refreshToken);
     }
 
     @Override
@@ -163,6 +168,33 @@ public class UserAuthServiceIml implements UserDetailsService, UserAuthService {
 
         userRepository.save(user);
         resetRepository.save(resetCode);
+    }
+
+    @Override
+    public UserAuthResponse refreshToken(String refreshToken) {
+
+        String tokenType = jwtService.extractTokenType(refreshToken);
+
+        if (tokenType == null || !tokenType.equals("refresh")) {
+            throw new BusinessException("Invalid refresh token", HttpStatus.UNAUTHORIZED);
+        }
+
+        String username = jwtService.extractUsername(refreshToken);
+
+        if (username == null) {
+            throw new BusinessException("Refresh token expired or invalid", HttpStatus.UNAUTHORIZED);
+        }
+
+        User user = userRepository.findByEmailIgnoreCase(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!refreshToken.equals(user.getRefreshToken())) {
+            throw new BusinessException("Refresh token does not match", HttpStatus.UNAUTHORIZED);
+        }
+
+        String newAccessToken = jwtService.generateUserToken(user);
+
+        return new UserAuthResponse(user, newAccessToken, refreshToken);
     }
 
     private String generateSecureCode() {

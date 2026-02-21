@@ -11,4 +11,5 @@ public interface UserAuthService {
     UserResponse getCurrentUser(User user);
     UserResponse updateUser(User user, UserAuthUpdateRequest userUpdate);
     Void deleteUser(User user);
+    UserAuthResponse refreshToken(String refreshToken);
 }
