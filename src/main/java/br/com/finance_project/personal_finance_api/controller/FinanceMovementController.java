@@ -2,6 +2,7 @@ package br.com.finance_project.personal_finance_api.controller;
 
 import br.com.finance_project.personal_finance_api.dto.FinanceMovementRequestDTO;
 import br.com.finance_project.personal_finance_api.dto.FinanceMovementResponseDTO;
+import br.com.finance_project.personal_finance_api.dto.FinanceMovementUserFinancesResponseDTO;
 import br.com.finance_project.personal_finance_api.model.MovementType;
 import br.com.finance_project.personal_finance_api.model.User;
 import br.com.finance_project.personal_finance_api.service.FinanceMovementServiceIml;
@@ -65,5 +66,13 @@ public class FinanceMovementController {
         financeMovementService.deleteId(id, user);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("user-finances")
+    public ResponseEntity<FinanceMovementUserFinancesResponseDTO> userFinances(
+            @AuthenticationPrincipal User user
+    ){
+        FinanceMovementUserFinancesResponseDTO userFinance = financeMovementService.userFinances(user);
+        return ResponseEntity.ok(userFinance);
     }
 }

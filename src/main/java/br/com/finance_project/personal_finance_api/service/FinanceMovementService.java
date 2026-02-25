@@ -2,6 +2,7 @@ package br.com.finance_project.personal_finance_api.service;
 
 import br.com.finance_project.personal_finance_api.dto.FinanceMovementRequestDTO;
 import br.com.finance_project.personal_finance_api.dto.FinanceMovementResponseDTO;
+import br.com.finance_project.personal_finance_api.dto.FinanceMovementUserFinancesResponseDTO;
 import br.com.finance_project.personal_finance_api.model.MovementType;
 import br.com.finance_project.personal_finance_api.model.User;
 
@@ -14,4 +15,5 @@ public interface FinanceMovementService {
     FinanceMovementResponseDTO save(FinanceMovementRequestDTO financeMovement, User user);
     FinanceMovementResponseDTO update(Long id, FinanceMovementRequestDTO financeMovement, User user);
     void deleteId(long id, User user);
+    FinanceMovementUserFinancesResponseDTO userFinances(User user);
 }

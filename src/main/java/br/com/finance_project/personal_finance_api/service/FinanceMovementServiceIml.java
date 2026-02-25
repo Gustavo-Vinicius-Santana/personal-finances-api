@@ -2,6 +2,7 @@ package br.com.finance_project.personal_finance_api.service;
 
 import br.com.finance_project.personal_finance_api.dto.FinanceMovementRequestDTO;
 import br.com.finance_project.personal_finance_api.dto.FinanceMovementResponseDTO;
+import br.com.finance_project.personal_finance_api.dto.FinanceMovementUserFinancesResponseDTO;
 import br.com.finance_project.personal_finance_api.exception.BusinessException;
 import br.com.finance_project.personal_finance_api.exception.ResourceNotFoundException;
 import br.com.finance_project.personal_finance_api.model.FinanceMovement;
@@ -96,6 +97,22 @@ public class FinanceMovementServiceIml implements FinanceMovementService {
                         new ResourceNotFoundException("Movement not found"));
 
         financeMovementRepository.delete(movement);
+    }
+
+    @Override
+    public FinanceMovementUserFinancesResponseDTO userFinances(User user) {
+        List<FinanceMovement> financesMovement = financeMovementRepository.findByUserId(user.getId());
+
+        BigDecimal total = BigDecimal.ZERO;
+        for(FinanceMovement fm : financesMovement){
+            if("INCOME".equalsIgnoreCase(String.valueOf(fm.getType()))){
+                total = total.add(fm.getAmount());
+            } else if ("EXPENSE".equalsIgnoreCase(String.valueOf(fm.getType()))) {
+                total = total.subtract(fm.getAmount());
+            }
+        }
+
+        return new FinanceMovementUserFinancesResponseDTO(total);
     }
 
     private void validateBusinessRules(FinanceMovementRequestDTO dto) {
