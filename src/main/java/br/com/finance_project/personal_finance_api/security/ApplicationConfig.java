@@ -26,7 +26,9 @@ public class ApplicationConfig {
 
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:4200",
-                "http://localhost:4200/"
+                "http://localhost:4200/",
+                "https://personal-finances-pied.vercel.app/",
+                "https://personal-finances-pied.vercel.app"
         ));
 
         configuration.setAllowedMethods(Arrays.asList(
