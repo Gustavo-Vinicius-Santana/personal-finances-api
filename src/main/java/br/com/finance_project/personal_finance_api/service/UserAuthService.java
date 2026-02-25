@@ -12,4 +12,5 @@ public interface UserAuthService {
     UserResponse updateUser(User user, UserAuthUpdateRequest userUpdate);
     Void deleteUser(User user);
     UserAuthResponse refreshToken(String refreshToken);
+    UserAuthChangeEmailResponseDTO changeEmail(UserAuthChangeEmailRequestDTO emailUpdate, User user);
 }

@@ -24,7 +24,17 @@ public class EmailServiceIml implements EmailService {
         message.setSubject("Password Reset Code");
         message.setText("Your reset code is: " + code);
 
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            System.out.println("Email enviado com sucesso para " + to);
+        } catch (Exception e) {
+            System.err.println("Erro ao enviar email para " + to);
+            e.printStackTrace();
+
+            throw new RuntimeException(
+                    "Não foi possível enviar o código de recuperação. Tente novamente mais tarde."
+            );
+        }
 
         return null;
     }

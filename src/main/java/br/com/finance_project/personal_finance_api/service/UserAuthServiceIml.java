@@ -91,15 +91,7 @@ public class UserAuthServiceIml implements UserDetailsService, UserAuthService {
             User user,
             UserAuthUpdateRequest userUpdate
     ) {
-
-        if (userRepository.existsByEmailIgnoreCaseAndIdNot(
-                userUpdate.email(), user.getId())
-        ) {
-            throw new BusinessException("Email already in use");
-        }
-
         user.setName(userUpdate.name());
-        user.setEmail(userUpdate.email());
 
         User updatedUser = userRepository.save(user);
 
@@ -123,7 +115,7 @@ public class UserAuthServiceIml implements UserDetailsService, UserAuthService {
 
         userRepository.findByEmailIgnoreCase(request.email())
                 .ifPresent(user -> {
-
+                    System.out.println("aaaaa");
                     resetRepository.deleteByEmail(user.getEmail());
 
                     String code = generateSecureCode();
@@ -136,7 +128,7 @@ public class UserAuthServiceIml implements UserDetailsService, UserAuthService {
                     resetCode.setUsed(false);
 
                     resetRepository.save(resetCode);
-
+                    System.out.println("bbbbbbb");
                     emailService.sendResetCode(user.getEmail(), code);
                 });
     }
@@ -195,6 +187,35 @@ public class UserAuthServiceIml implements UserDetailsService, UserAuthService {
         String newAccessToken = jwtService.generateUserToken(user);
 
         return new UserAuthResponse(user, newAccessToken, refreshToken);
+    }
+
+    @Override
+    public UserAuthChangeEmailResponseDTO changeEmail(
+            UserAuthChangeEmailRequestDTO emailUpdate,
+            User user
+    ) {
+        if(!passwordEncoder.matches(emailUpdate.password(), user.getPassword())){
+            throw new BusinessException(
+                    "Invalid credentials",
+                    HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        if (!emailUpdate.currentEmail().equals(user.getEmail())) {
+            throw new BusinessException("Invalid email");
+        }
+
+        if (userRepository.existsByEmailIgnoreCaseAndIdNot(
+                emailUpdate.newEmail(), user.getId())
+        ) {
+            throw new BusinessException("Email already in use");
+        }
+
+        user.setEmail(emailUpdate.newEmail());
+
+        userRepository.save(user);
+
+        return new UserAuthChangeEmailResponseDTO(user.getEmail());
     }
 
     private String generateSecureCode() {

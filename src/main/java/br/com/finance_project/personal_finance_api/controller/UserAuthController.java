@@ -77,4 +77,12 @@ public class UserAuthController {
         return ResponseEntity.ok(userAuth.refreshToken(request.refreshToken()));
     }
 
+    @PostMapping("change-email")
+    public ResponseEntity<UserAuthChangeEmailResponseDTO> changeEmail(
+            @RequestBody UserAuthChangeEmailRequestDTO emailUpdate,
+            @AuthenticationPrincipal User user
+    ) {
+        return ResponseEntity.ok(userAuth.changeEmail(emailUpdate, user));
+    }
+
 }
