@@ -115,7 +115,6 @@ public class UserAuthServiceIml implements UserDetailsService, UserAuthService {
 
         userRepository.findByEmailIgnoreCase(request.email())
                 .ifPresent(user -> {
-                    System.out.println("aaaaa");
                     resetRepository.deleteByEmail(user.getEmail());
 
                     String code = generateSecureCode();
@@ -128,7 +127,6 @@ public class UserAuthServiceIml implements UserDetailsService, UserAuthService {
                     resetCode.setUsed(false);
 
                     resetRepository.save(resetCode);
-                    System.out.println("bbbbbbb");
                     emailService.sendResetCode(user.getEmail(), code);
                 });
     }

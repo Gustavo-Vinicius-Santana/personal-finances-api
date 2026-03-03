@@ -1,33 +1,43 @@
 package br.com.finance_project.personal_finance_api.service;
 
+import com.resend.Resend;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.CreateEmailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class EmailServiceIml implements EmailService {
 
-    private final JavaMailSender mailSender;
-
     @Value("${MAIL_FROM}")
     private String mailFrom;
 
+    @Value("${KEY_RESEND}")
+    private String keyResend;
+
     @Override
     public Void sendResetCode(String to, String code) {
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(mailFrom);
-        message.setTo(to);
-        message.setSubject("Password Reset Code");
-        message.setText("Your reset code is: " + code);
+        Resend resend = new Resend(keyResend);
+        
+        CreateEmailOptions params = CreateEmailOptions.builder()
+                .from(mailFrom)
+                .to(to)
+                .subject("Recover password")
+                .html("""
+                        <h2>Recuperação de senha</h2>
+                        <p>Seu código é:</p>
+                        <h1>%s</h1>
+                        """.formatted(code)
+                )
+                .build();
 
         try {
-            mailSender.send(message);
-            System.out.println("Email enviado com sucesso para " + to);
+            CreateEmailResponse response = resend.emails().send(params);
+            System.out.println("Email enviado! ID: " + response.getId());
         } catch (Exception e) {
+
             System.err.println("Erro ao enviar email para " + to);
             e.printStackTrace();
 
