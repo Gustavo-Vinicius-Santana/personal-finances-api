@@ -20,7 +20,7 @@ public class EmailServiceIml implements EmailService {
     @Override
     public Void sendResetCode(String to, String code) {
         Resend resend = new Resend(keyResend);
-        
+
         CreateEmailOptions params = CreateEmailOptions.builder()
                 .from(mailFrom)
                 .to(to)
